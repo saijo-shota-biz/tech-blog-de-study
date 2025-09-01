@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { use, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import type { AnalysisResult, Article } from "@/types";
 import { splitIntoSentences } from "@/utils/sentenceSplitter";
 
@@ -25,11 +25,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
     null,
   );
 
-  useEffect(() => {
-    fetchArticle();
-  }, [resolvedParams.id]);
-
-  const fetchArticle = async () => {
+  const fetchArticle = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/articles/${resolvedParams.id}`);
@@ -46,7 +42,11 @@ export default function ArticlePage({ params }: ArticlePageProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [resolvedParams.id]);
+
+  useEffect(() => {
+    fetchArticle();
+  }, [fetchArticle]);
 
   const handleSentenceClick = async (sentence: string) => {
     setSelectedSentence(sentence);
@@ -159,6 +159,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="px-4 py-3 flex items-center">
           <button
+            type="button"
             onClick={() => router.back()}
             className="mr-3 p-1"
             aria-label="Back"
@@ -217,7 +218,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
         <div className="prose prose-sm max-w-none">
           {sentences.map((sentence, index) => (
             <span
-              key={index}
+              key={`${index}-${sentence.slice(0, 20)}`}
               onClick={() => handleSentenceClick(sentence)}
               className={`cursor-pointer transition-colors p-1 rounded inline ${
                 selectedSentence === sentence
@@ -316,7 +317,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
                 <div className="mb-4">
                   <h4 className="font-semibold text-gray-900 mb-2">単語：</h4>
                   <div className="space-y-2">
-                    {analysis.words.map((word, idx) => (
+                    {analysis.words.map((word) => (
                       <div
                         key={word.word}
                         className="flex justify-between text-sm"
@@ -333,7 +334,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
                 <div className="mb-4">
                   <h4 className="font-semibold text-gray-900 mb-2">文法：</h4>
                   <ul className="list-disc list-inside text-sm text-gray-700">
-                    {analysis.grammar.map((g, idx) => (
+                    {analysis.grammar.map((g) => (
                       <li key={g}>{g}</li>
                     ))}
                   </ul>
