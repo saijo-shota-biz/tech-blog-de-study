@@ -31,7 +31,7 @@ export async function GET(request: Request) {
   const tag = searchParams.get("tag");
 
   try {
-    let url = `${DEV_TO_API_BASE}/articles?page=${page}&per_page=${perPage}`;
+    let url = `${DEV_TO_API_BASE}/articles?top=7&page=${page}&per_page=${perPage}`;
     if (tag) {
       url += `&tag=${tag}`;
     }

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { use, useCallback, useEffect, useState } from "react";
 import type { AnalysisResult, Article } from "@/types";
@@ -170,6 +171,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
+              <title>戻る</title>
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -190,9 +192,11 @@ export default function ArticlePage({ params }: ArticlePageProps) {
       {/* Article Content */}
       <main className="px-4 py-6 max-w-2xl mx-auto">
         {article.coverImage && (
-          <img
+          <Image
             src={article.coverImage}
             alt={article.title}
+            width={800}
+            height={192}
             className="w-full h-48 object-cover rounded-lg mb-4"
           />
         )}
@@ -203,9 +207,11 @@ export default function ArticlePage({ params }: ArticlePageProps) {
 
         <div className="flex items-center space-x-2 mb-4 text-sm text-gray-600">
           {article.author.profileImage && (
-            <img
+            <Image
               src={article.author.profileImage}
               alt={article.author.name}
+              width={32}
+              height={32}
               className="w-8 h-8 rounded-full"
             />
           )}
@@ -217,17 +223,18 @@ export default function ArticlePage({ params }: ArticlePageProps) {
         {/* Sentences */}
         <div className="prose prose-sm max-w-none">
           {sentences.map((sentence, index) => (
-            <span
+            <button
+              type="button"
               key={`${index}-${sentence.slice(0, 20)}`}
               onClick={() => handleSentenceClick(sentence)}
-              className={`cursor-pointer transition-colors p-1 rounded inline ${
+              className={`cursor-pointer transition-colors p-1 rounded inline border-none bg-transparent text-left ${
                 selectedSentence === sentence
                   ? "bg-blue-200 text-blue-900"
                   : "hover:bg-blue-50"
               }`}
             >
               {sentence}{" "}
-            </span>
+            </button>
           ))}
         </div>
       </main>
@@ -253,6 +260,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
+                <title>閉じる</title>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -278,6 +286,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
+                  <title>{isPlaying ? "停止" : "発音"}</title>
                   {isPlaying ? (
                     <path
                       strokeLinecap="round"

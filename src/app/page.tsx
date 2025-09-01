@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { Article } from "@/types";
@@ -65,9 +66,11 @@ export default function Home() {
                 >
                   <article className="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow">
                     {article.coverImage && (
-                      <img
+                      <Image
                         src={article.coverImage}
                         alt={article.title}
+                        width={400}
+                        height={160}
                         className="w-full h-40 object-cover rounded-md mb-3"
                       />
                     )}
@@ -80,9 +83,11 @@ export default function Home() {
                     <div className="flex items-center justify-between text-xs text-gray-500">
                       <div className="flex items-center space-x-2">
                         {article.author.profileImage && (
-                          <img
+                          <Image
                             src={article.author.profileImage}
                             alt={article.author.name}
+                            width={24}
+                            height={24}
                             className="w-6 h-6 rounded-full"
                           />
                         )}
