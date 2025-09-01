@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import type { DevToArticle, Article } from "@/types";
+import type { Article, DevToArticle } from "@/types";
 
 const DEV_TO_API_BASE = "https://dev.to/api";
 
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
 
     const response = await fetch(url, {
       headers: {
-        "Accept": "application/json",
+        Accept: "application/json",
       },
     });
 
@@ -54,7 +54,7 @@ export async function GET(request: Request) {
     console.error("Error fetching articles:", error);
     return NextResponse.json(
       { error: "Failed to fetch articles" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

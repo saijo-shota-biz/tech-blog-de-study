@@ -39,7 +39,7 @@ export interface DevToArticle {
 // Application types
 export interface Article {
   id: string;
-  source: 'devto' | 'medium' | 'hashnode';
+  source: "devto" | "medium" | "hashnode";
   sourceId: string;
   title: string;
   description: string;

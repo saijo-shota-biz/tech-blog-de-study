@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import type { Article } from "@/types";
 
 export default function Home() {
@@ -19,7 +19,7 @@ export default function Home() {
       setLoading(true);
       const response = await fetch(`/api/articles?page=${page}&per_page=20`);
       if (!response.ok) throw new Error("Failed to fetch articles");
-      
+
       const data = await response.json();
       setArticles(data.articles);
     } catch (err) {
@@ -110,7 +110,8 @@ export default function Home() {
             {/* Pagination */}
             <div className="flex justify-between items-center mt-8">
               <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
+                type="button"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
                 className="px-4 py-2 bg-blue-600 text-white rounded disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
@@ -118,7 +119,8 @@ export default function Home() {
               </button>
               <span className="text-sm text-gray-600">Page {page}</span>
               <button
-                onClick={() => setPage(p => p + 1)}
+                type="button"
+                onClick={() => setPage((p) => p + 1)}
                 className="px-4 py-2 bg-blue-600 text-white rounded"
               >
                 次へ

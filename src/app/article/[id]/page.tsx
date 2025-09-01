@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
-import type { Article, AnalysisResult } from "@/types";
+import { use, useEffect, useState } from "react";
+import type { AnalysisResult, Article } from "@/types";
 import { splitIntoSentences } from "@/utils/sentenceSplitter";
 
 interface ArticlePageProps {
@@ -21,7 +21,9 @@ export default function ArticlePage({ params }: ArticlePageProps) {
   const [analyzing, setAnalyzing] = useState(false);
   const [showBottomSheet, setShowBottomSheet] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(
+    null,
+  );
 
   useEffect(() => {
     fetchArticle();
@@ -32,10 +34,10 @@ export default function ArticlePage({ params }: ArticlePageProps) {
       setLoading(true);
       const response = await fetch(`/api/articles/${resolvedParams.id}`);
       if (!response.ok) throw new Error("Failed to fetch article");
-      
+
       const data = await response.json();
       setArticle(data.article);
-      
+
       // Parse and split content into sentences using utility
       const sentenceArray = splitIntoSentences(data.article.content);
       setSentences(sentenceArray);
@@ -49,7 +51,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
   const handleSentenceClick = async (sentence: string) => {
     setSelectedSentence(sentence);
     setShowBottomSheet(true);
-    
+
     try {
       setAnalyzing(true);
       const response = await fetch("/api/analyze", {
@@ -96,7 +98,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
       }
 
       setIsPlaying(true);
-      
+
       const response = await fetch("/api/tts", {
         method: "POST",
         headers: {
@@ -112,7 +114,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
-      
+
       audio.onended = () => {
         setIsPlaying(false);
         setCurrentAudio(null);
@@ -161,8 +163,18 @@ export default function ArticlePage({ params }: ArticlePageProps) {
             className="mr-3 p-1"
             aria-label="Back"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
           </button>
           <div className="flex-1">
@@ -183,9 +195,11 @@ export default function ArticlePage({ params }: ArticlePageProps) {
             className="w-full h-48 object-cover rounded-lg mb-4"
           />
         )}
-        
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">{article.title}</h1>
-        
+
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          {article.title}
+        </h1>
+
         <div className="flex items-center space-x-2 mb-4 text-sm text-gray-600">
           {article.author.profileImage && (
             <img
@@ -220,90 +234,119 @@ export default function ArticlePage({ params }: ArticlePageProps) {
       {/* Bottom Sheet */}
       {showBottomSheet && (
         <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl p-4 max-h-[50vh] overflow-y-auto z-50 shadow-lg border-t border-gray-200">
-            <div className="flex justify-between items-center mb-4">
-              <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto"></div>
+          <div className="flex justify-between items-center mb-4">
+            <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto"></div>
+            <button
+              type="button"
+              onClick={() => {
+                setShowBottomSheet(false);
+                setSelectedSentence(null);
+                setAnalysis(null);
+              }}
+              className="text-gray-400 hover:text-gray-600"
+              aria-label="閉じる"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold text-gray-900">選択した文：</h3>
               <button
                 type="button"
-                onClick={() => {
-                  setShowBottomSheet(false);
-                  setSelectedSentence(null);
-                  setAnalysis(null);
-                }}
-                className="text-gray-400 hover:text-gray-600"
-                aria-label="閉じる"
+                onClick={handlePlayAudio}
+                disabled={!selectedSentence}
+                className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white rounded text-sm disabled:bg-gray-300"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  {isPlaying ? (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 9v6m4-6v6"
+                    />
+                  ) : (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M14.828 14.828a4 4 0 005.656 0M9 9a3 3 0 015.196 0M9 9a3 3 0 011.828-2.828M9 9v.01M15 9v.01"
+                    />
+                  )}
                 </svg>
+                <span>{isPlaying ? "停止" : "発音"}</span>
               </button>
             </div>
-            
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold text-gray-900">選択した文：</h3>
-                <button
-                  type="button"
-                  onClick={handlePlayAudio}
-                  disabled={!selectedSentence}
-                  className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white rounded text-sm disabled:bg-gray-300"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    {isPlaying ? (
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />
-                    ) : (
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 005.656 0M9 9a3 3 0 015.196 0M9 9a3 3 0 011.828-2.828M9 9v.01M15 9v.01" />
-                    )}
-                  </svg>
-                  <span>{isPlaying ? "停止" : "発音"}</span>
-                </button>
-              </div>
-              <p className="text-gray-700 bg-gray-50 p-3 rounded">{selectedSentence}</p>
+            <p className="text-gray-700 bg-gray-50 p-3 rounded">
+              {selectedSentence}
+            </p>
+          </div>
+
+          {analyzing ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
             </div>
-
-            {analyzing ? (
-              <div className="flex justify-center py-8">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+          ) : analysis ? (
+            <>
+              <div className="mb-4">
+                <h4 className="font-semibold text-gray-900 mb-2">日本語訳：</h4>
+                <p className="text-gray-700">{analysis.translation}</p>
               </div>
-            ) : analysis ? (
-              <>
+
+              {analysis.words.length > 0 && (
                 <div className="mb-4">
-                  <h4 className="font-semibold text-gray-900 mb-2">日本語訳：</h4>
-                  <p className="text-gray-700">{analysis.translation}</p>
+                  <h4 className="font-semibold text-gray-900 mb-2">単語：</h4>
+                  <div className="space-y-2">
+                    {analysis.words.map((word, idx) => (
+                      <div key={idx} className="flex justify-between text-sm">
+                        <span className="font-medium">{word.word}</span>
+                        <span className="text-gray-600">{word.meaning}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
+              )}
 
-                {analysis.words.length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="font-semibold text-gray-900 mb-2">単語：</h4>
-                    <div className="space-y-2">
-                      {analysis.words.map((word, idx) => (
-                        <div key={idx} className="flex justify-between text-sm">
-                          <span className="font-medium">{word.word}</span>
-                          <span className="text-gray-600">{word.meaning}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              {analysis.grammar.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="font-semibold text-gray-900 mb-2">文法：</h4>
+                  <ul className="list-disc list-inside text-sm text-gray-700">
+                    {analysis.grammar.map((g, idx) => (
+                      <li key={idx}>{g}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
-                {analysis.grammar.length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="font-semibold text-gray-900 mb-2">文法：</h4>
-                    <ul className="list-disc list-inside text-sm text-gray-700">
-                      {analysis.grammar.map((g, idx) => (
-                        <li key={idx}>{g}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {analysis.explanation && (
-                  <div className="mb-4">
-                    <h4 className="font-semibold text-gray-900 mb-2">解説：</h4>
-                    <p className="text-sm text-gray-700">{analysis.explanation}</p>
-                  </div>
-                )}
-              </>
-            ) : null}
+              {analysis.explanation && (
+                <div className="mb-4">
+                  <h4 className="font-semibold text-gray-900 mb-2">解説：</h4>
+                  <p className="text-sm text-gray-700">
+                    {analysis.explanation}
+                  </p>
+                </div>
+              )}
+            </>
+          ) : null}
         </div>
       )}
     </div>

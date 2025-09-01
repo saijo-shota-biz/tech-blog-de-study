@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import type { DevToArticle, Article } from "@/types";
+import type { Article, DevToArticle } from "@/types";
 
 const DEV_TO_API_BASE = "https://dev.to/api";
 
@@ -25,18 +25,18 @@ function transformDevToArticle(devtoArticle: DevToArticle): Article {
 }
 
 export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  
+
   // Extract the numeric ID from our composite ID (e.g., "devto-123" -> "123")
   const sourceId = id.replace("devto-", "");
 
   try {
     const response = await fetch(`${DEV_TO_API_BASE}/articles/${sourceId}`, {
       headers: {
-        "Accept": "application/json",
+        Accept: "application/json",
       },
     });
 
@@ -44,7 +44,7 @@ export async function GET(
       if (response.status === 404) {
         return NextResponse.json(
           { error: "Article not found" },
-          { status: 404 }
+          { status: 404 },
         );
       }
       throw new Error(`Dev.to API error: ${response.status}`);
@@ -58,7 +58,7 @@ export async function GET(
     console.error("Error fetching article:", error);
     return NextResponse.json(
       { error: "Failed to fetch article" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

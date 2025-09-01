@@ -10,10 +10,7 @@ export async function POST(request: Request) {
     const { text } = await request.json();
 
     if (!text) {
-      return NextResponse.json(
-        { error: "Text is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Text is required" }, { status: 400 });
     }
 
     const mp3 = await openai.audio.speech.create({
@@ -35,7 +32,7 @@ export async function POST(request: Request) {
     console.error("Error generating TTS:", error);
     return NextResponse.json(
       { error: "Failed to generate audio" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

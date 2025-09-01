@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     if (!sentence) {
       return NextResponse.json(
         { error: "Sentence is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
     let analysis: AnalysisResult;
     try {
       analysis = JSON.parse(content);
-    } catch (parseError) {
+    } catch (_parseError) {
       console.error("Failed to parse OpenAI response:", content);
       throw new Error("Invalid response format from OpenAI");
     }
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     console.error("Error analyzing sentence:", error);
     return NextResponse.json(
       { error: "Failed to analyze sentence" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
