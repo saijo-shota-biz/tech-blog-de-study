@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { use, useCallback, useEffect, useState } from "react";
 import type { AnalysisResult, Article } from "@/types";
-import { splitIntoSentences } from "@/utils/sentenceSplitter";
+import { processHtmlWithClickableParagraphs } from "@/utils/sentenceSplitter";
 
 interface ArticlePageProps {
   params: Promise<{ id: string }>;
@@ -16,11 +16,15 @@ export default function ArticlePage({ params }: ArticlePageProps) {
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sentences, setSentences] = useState<string[]>([]);
-  const [selectedSentence, setSelectedSentence] = useState<string | null>(null);
+  const [processedHtml, setProcessedHtml] = useState<string>("");
+  const [originalContent, setOriginalContent] = useState<string>("");
+  const [selectedParagraph, setSelectedParagraph] = useState<string | null>(
+    null,
+  );
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [showBottomSheet, setShowBottomSheet] = useState(false);
+  const [bottomSheetExpanded, setBottomSheetExpanded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(
     null,
@@ -35,9 +39,14 @@ export default function ArticlePage({ params }: ArticlePageProps) {
       const data = await response.json();
       setArticle(data.article);
 
-      // Parse and split content into sentences using utility
-      const sentenceArray = splitIntoSentences(data.article.content);
-      setSentences(sentenceArray);
+      // Store original content and process it
+      setOriginalContent(data.article.content);
+
+      // Initial processing without selected sentence
+      const htmlContent = processHtmlWithClickableParagraphs(
+        data.article.content,
+      );
+      setProcessedHtml(htmlContent);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
@@ -49,9 +58,21 @@ export default function ArticlePage({ params }: ArticlePageProps) {
     fetchArticle();
   }, [fetchArticle]);
 
+  // Update processed HTML when selectedParagraph changes
+  useEffect(() => {
+    if (originalContent) {
+      const htmlContent = processHtmlWithClickableParagraphs(
+        originalContent,
+        selectedParagraph || undefined,
+      );
+      setProcessedHtml(htmlContent);
+    }
+  }, [selectedParagraph, originalContent]);
+
   const handleSentenceClick = async (sentence: string) => {
-    setSelectedSentence(sentence);
+    setSelectedParagraph(sentence);
     setShowBottomSheet(true);
+    setBottomSheetExpanded(false);
 
     try {
       setAnalyzing(true);
@@ -60,7 +81,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ sentence }),
+        body: JSON.stringify({ paragraph: sentence }),
       });
 
       if (!response.ok) {
@@ -73,9 +94,9 @@ export default function ArticlePage({ params }: ArticlePageProps) {
       console.error("Error analyzing sentence:", error);
       setAnalysis({
         translation: "解析に失敗しました。",
-        words: [],
-        idioms: [],
-        grammar: [],
+        vocab: [],
+        phrases: [],
+        entities: [],
         explanation: "エラーが発生しました。もう一度お試しください。",
       });
     } finally {
@@ -84,7 +105,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
   };
 
   const handlePlayAudio = async () => {
-    if (!selectedSentence) return;
+    if (!selectedParagraph) return;
 
     try {
       // Stop current audio if playing
@@ -105,7 +126,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text: selectedSentence }),
+        body: JSON.stringify({ text: selectedParagraph }),
       });
 
       if (!response.ok) {
@@ -133,6 +154,19 @@ export default function ArticlePage({ params }: ArticlePageProps) {
     } catch (error) {
       console.error("Error playing audio:", error);
       setIsPlaying(false);
+    }
+  };
+
+  const handleBottomSheetToggle = () => {
+    if (!bottomSheetExpanded) {
+      // 50% -> 100%
+      setBottomSheetExpanded(true);
+    } else {
+      // 100% -> 閉じる
+      setShowBottomSheet(false);
+      setSelectedParagraph(null);
+      setAnalysis(null);
+      setBottomSheetExpanded(false);
     }
   };
 
@@ -181,7 +215,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
             </svg>
           </button>
           <div className="flex-1">
-            <h1 className="text-sm font-semibold text-gray-900 truncate">
+            <h1 className="text-sm font-semibold text-gray-900 break-words leading-tight">
               {article.title}
             </h1>
             <p className="text-xs text-gray-600">{article.author.name}</p>
@@ -190,7 +224,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
       </header>
 
       {/* Article Content */}
-      <main className="px-4 py-6 max-w-2xl mx-auto">
+      <main className="px-4 py-6 max-w-2xl mx-auto overflow-hidden">
         {article.coverImage && (
           <Image
             src={article.coverImage}
@@ -201,7 +235,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
           />
         )}
 
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">
+        <h1 className="text-2xl font-bold text-gray-900 mb-4 break-words hyphens-auto">
           {article.title}
         </h1>
 
@@ -220,36 +254,59 @@ export default function ArticlePage({ params }: ArticlePageProps) {
           <span>{article.readingTime} min read</span>
         </div>
 
-        {/* Sentences */}
-        <div className="prose prose-sm max-w-none">
-          {sentences.map((sentence, index) => (
-            <button
-              type="button"
-              key={`${index}-${sentence.slice(0, 20)}`}
-              onClick={() => handleSentenceClick(sentence)}
-              className={`cursor-pointer transition-colors p-1 rounded inline border-none bg-transparent text-left ${
-                selectedSentence === sentence
-                  ? "bg-blue-200 text-blue-900"
-                  : "hover:bg-blue-50"
-              }`}
-            >
-              {sentence}{" "}
-            </button>
-          ))}
-        </div>
+        {/* Article Content with Clickable Sentences */}
+        <article
+          className="prose prose-sm max-w-none break-words overflow-wrap-anywhere"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: Content is from trusted dev.to API and processed
+          dangerouslySetInnerHTML={{ __html: processedHtml }}
+          onClick={(e) => {
+            const target = e.target as HTMLElement;
+            if (target.classList.contains("clickable-paragraph")) {
+              const sentence = target.getAttribute("data-sentence");
+              if (sentence) {
+                handleSentenceClick(sentence);
+              }
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              const target = e.target as HTMLElement;
+              if (target.classList.contains("clickable-paragraph")) {
+                const sentence = target.getAttribute("data-sentence");
+                if (sentence) {
+                  handleSentenceClick(sentence);
+                }
+              }
+            }
+          }}
+        />
       </main>
 
       {/* Bottom Sheet */}
       {showBottomSheet && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl p-4 max-h-[50vh] overflow-y-auto z-50 shadow-lg border-t border-gray-200">
+        <div
+          className={`fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl p-4 overflow-y-auto z-50 shadow-lg border-t border-gray-200 transition-all duration-300 ${
+            bottomSheetExpanded ? "h-[90vh]" : "h-[50vh]"
+          }`}
+        >
           <div className="flex justify-between items-center mb-4">
-            <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto"></div>
+            <button
+              type="button"
+              className="w-12 h-1 bg-gray-300 rounded-full mx-auto cursor-pointer hover:bg-gray-400 transition-colors border-none p-2 -m-2"
+              onClick={handleBottomSheetToggle}
+              aria-label={
+                bottomSheetExpanded
+                  ? "ボトムシートを閉じる"
+                  : "ボトムシートを展開"
+              }
+            />
             <button
               type="button"
               onClick={() => {
                 setShowBottomSheet(false);
-                setSelectedSentence(null);
+                setSelectedParagraph(null);
                 setAnalysis(null);
+                setBottomSheetExpanded(false);
               }}
               className="text-gray-400 hover:text-gray-600"
               aria-label="閉じる"
@@ -277,7 +334,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
               <button
                 type="button"
                 onClick={handlePlayAudio}
-                disabled={!selectedSentence}
+                disabled={!selectedParagraph}
                 className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white rounded text-sm disabled:bg-gray-300"
               >
                 <svg
@@ -307,7 +364,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
               </button>
             </div>
             <p className="text-gray-700 bg-gray-50 p-3 rounded">
-              {selectedSentence}
+              {selectedParagraph}
             </p>
           </div>
 
@@ -322,31 +379,73 @@ export default function ArticlePage({ params }: ArticlePageProps) {
                 <p className="text-gray-700">{analysis.translation}</p>
               </div>
 
-              {analysis.words.length > 0 && (
+              {analysis.vocab.length > 0 && (
                 <div className="mb-4">
-                  <h4 className="font-semibold text-gray-900 mb-2">単語：</h4>
+                  <h4 className="font-semibold text-gray-900 mb-2">
+                    重要単語：
+                  </h4>
                   <div className="space-y-2">
-                    {analysis.words.map((word) => (
+                    {analysis.vocab.map((item) => (
                       <div
-                        key={word.word}
-                        className="flex justify-between text-sm"
+                        key={item.term}
+                        className="bg-gray-50 p-2 rounded text-sm"
                       >
-                        <span className="font-medium">{word.word}</span>
-                        <span className="text-gray-600">{word.meaning}</span>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="font-medium text-blue-700">
+                            {item.term}
+                          </span>
+                          <span className="text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded">
+                            {item.type}
+                          </span>
+                        </div>
+                        <div className="text-gray-700">{item.meaning}</div>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {analysis.grammar.length > 0 && (
+              {analysis.phrases.length > 0 && (
                 <div className="mb-4">
-                  <h4 className="font-semibold text-gray-900 mb-2">文法：</h4>
-                  <ul className="list-disc list-inside text-sm text-gray-700">
-                    {analysis.grammar.map((g) => (
-                      <li key={g}>{g}</li>
+                  <h4 className="font-semibold text-gray-900 mb-2">
+                    重要表現：
+                  </h4>
+                  <div className="space-y-2">
+                    {analysis.phrases.map((item) => (
+                      <div
+                        key={item.phrase}
+                        className="bg-blue-50 p-2 rounded text-sm"
+                      >
+                        <div className="font-medium text-blue-800 mb-1">
+                          {item.phrase}
+                        </div>
+                        <div className="text-gray-700 mb-1">{item.meaning}</div>
+                        {item.note && (
+                          <div className="text-xs text-gray-600 italic">
+                            {item.note}
+                          </div>
+                        )}
+                      </div>
                     ))}
-                  </ul>
+                  </div>
+                </div>
+              )}
+
+              {analysis.entities.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="font-semibold text-gray-900 mb-2">
+                    専門用語・固有名詞：
+                  </h4>
+                  <div className="flex flex-wrap gap-1">
+                    {analysis.entities.map((entity) => (
+                      <span
+                        key={entity}
+                        className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded"
+                      >
+                        {entity}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
 

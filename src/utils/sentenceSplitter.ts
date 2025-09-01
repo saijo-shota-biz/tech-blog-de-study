@@ -1,3 +1,29 @@
+export function processHtmlWithClickableParagraphs(
+  html: string,
+  selectedParagraph?: string,
+): string {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
+
+  // Process all paragraph elements
+  const paragraphs = doc.querySelectorAll("p");
+
+  paragraphs.forEach((p) => {
+    const text = p.textContent?.trim();
+    if (!text) return;
+
+    // Add click attributes and styling to the paragraph
+    p.className = `clickable-paragraph ${
+      selectedParagraph === text
+        ? "bg-blue-200 text-blue-900"
+        : "hover:bg-blue-50 cursor-pointer"
+    } transition-colors p-2 rounded mb-2`;
+    p.setAttribute("data-sentence", text);
+  });
+
+  return doc.body ? doc.body.innerHTML : "";
+}
+
 export function splitIntoSentences(html: string): string[] {
   // Parse HTML to extract text content
   const parser = new DOMParser();

@@ -64,16 +64,11 @@ export interface Sentence {
 }
 
 export interface AnalysisResult {
-  translation: string;
-  words: {
-    word: string;
-    meaning: string;
-    type: string;
-    techTerm: boolean;
-  }[];
-  idioms: string[];
-  grammar: string[];
-  explanation: string;
+  translation: string; // 段落全体の自然な和訳
+  vocab: Array<{ term: string; meaning: string; type: string }>; // 非専門の重要語のみ
+  phrases: Array<{ phrase: string; meaning: string; note?: string }>; // 句動詞・コロケーション・定型表現など
+  entities: string[]; // 専門用語・製品名・略語（訳さない）
+  explanation: string; // 段落の要旨・読み解きのコツ
 }
 
 export interface UserProgress {
