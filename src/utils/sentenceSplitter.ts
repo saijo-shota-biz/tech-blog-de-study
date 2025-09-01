@@ -63,7 +63,9 @@ export function extractTextFromHtml(html: string): string {
 
   // Remove script and style elements
   const scripts = doc.querySelectorAll("script, style");
-  scripts.forEach((el) => el.remove());
+  for (const el of scripts) {
+    el.remove();
+  }
 
   // Get text content
   return doc.body.textContent || "";

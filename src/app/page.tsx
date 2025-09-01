@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { Article } from "@/types";
 
 export default function Home() {
@@ -10,11 +10,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
 
-  useEffect(() => {
-    fetchArticles();
-  }, [page]);
-
-  const fetchArticles = async () => {
+  const fetchArticles = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/articles?page=${page}&per_page=20`);
@@ -27,7 +23,11 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page]);
+
+  useEffect(() => {
+    fetchArticles();
+  }, [fetchArticles]);
 
   return (
     <div className="min-h-screen bg-gray-50">

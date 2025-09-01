@@ -317,7 +317,10 @@ export default function ArticlePage({ params }: ArticlePageProps) {
                   <h4 className="font-semibold text-gray-900 mb-2">単語：</h4>
                   <div className="space-y-2">
                     {analysis.words.map((word, idx) => (
-                      <div key={idx} className="flex justify-between text-sm">
+                      <div
+                        key={word.word}
+                        className="flex justify-between text-sm"
+                      >
                         <span className="font-medium">{word.word}</span>
                         <span className="text-gray-600">{word.meaning}</span>
                       </div>
@@ -331,7 +334,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
                   <h4 className="font-semibold text-gray-900 mb-2">文法：</h4>
                   <ul className="list-disc list-inside text-sm text-gray-700">
                     {analysis.grammar.map((g, idx) => (
-                      <li key={idx}>{g}</li>
+                      <li key={g}>{g}</li>
                     ))}
                   </ul>
                 </div>
