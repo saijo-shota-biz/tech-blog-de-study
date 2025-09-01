@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Head from "next/head";
 import { useRouter } from "next/navigation";
 import { use, useCallback, useEffect, useState } from "react";
 import hljs from "highlight.js";
@@ -202,9 +203,35 @@ export default function ArticlePage({ params }: ArticlePageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-10">
+    <>
+      {article && (
+        <Head>
+          <title>{article.title} | Tech Blog Study</title>
+          <meta name="description" content={article.description || `${article.author.name}による技術記事。AI翻訳・語彙解説・音声読み上げで効率的に英語学習。`} />
+          <meta name="keywords" content={[...article.tags, "英語学習", "技術記事", "プログラミング"].join(", ")} />
+          <meta name="author" content={article.author.name} />
+          
+          <meta property="og:title" content={article.title} />
+          <meta property="og:description" content={article.description || `${article.author.name}による技術記事`} />
+          <meta property="og:type" content="article" />
+          <meta property="og:url" content={`https://tech-blog-de-study.vercel.app/article/${resolvedParams.id}`} />
+          {article.coverImage && <meta property="og:image" content={article.coverImage} />}
+          <meta property="article:published_time" content={article.publishedAt} />
+          <meta property="article:author" content={article.author.name} />
+          {article.tags.map((tag, index) => (
+            <meta key={index} property="article:tag" content={tag} />
+          ))}
+          
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={article.title} />
+          <meta name="twitter:description" content={article.description || `${article.author.name}による技術記事`} />
+          {article.coverImage && <meta name="twitter:image" content={article.coverImage} />}
+        </Head>
+      )}
+      
+      <div className="min-h-screen bg-gray-50 pb-20">
+        {/* Header */}
+        <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="px-4 py-3 flex items-center">
           <button
             type="button"
@@ -472,8 +499,9 @@ export default function ArticlePage({ params }: ArticlePageProps) {
               )}
             </>
           ) : null}
-        </div>
-      )}
-    </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
