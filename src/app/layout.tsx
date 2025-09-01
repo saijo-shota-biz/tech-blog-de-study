@@ -15,10 +15,20 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: {
     default: "Tech Blog Study - 英語×技術学習",
-    template: "%s | Tech Blog Study"
+    template: "%s | Tech Blog Study",
   },
-  description: "英語の技術記事でプログラミング知識と英語力を同時に向上。Dev.toの記事をAI翻訳・語彙解説・音声読み上げで効率的に学習できるプラットフォーム。",
-  keywords: ["英語学習", "技術記事", "プログラミング", "Dev.to", "AI翻訳", "語彙学習", "English", "Programming"],
+  description:
+    "英語の技術記事でプログラミング知識と英語力を同時に向上。Dev.toの記事をAI翻訳・語彙解説・音声読み上げで効率的に学習できるプラットフォーム。",
+  keywords: [
+    "英語学習",
+    "技術記事",
+    "プログラミング",
+    "Dev.to",
+    "AI翻訳",
+    "語彙学習",
+    "English",
+    "Programming",
+  ],
   authors: [{ name: "Tech Blog Study" }],
   creator: "Tech Blog Study",
   publisher: "Tech Blog Study",
@@ -27,7 +37,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://tech-blog-de-study.vercel.app'),
+  metadataBase: new URL("https://tech-blog-de-study.vercel.app"),
   openGraph: {
     title: "Tech Blog Study - 英語×技術学習",
     description: "英語の技術記事でプログラミング知識と英語力を同時に向上",
@@ -47,9 +57,9 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
   verification: {

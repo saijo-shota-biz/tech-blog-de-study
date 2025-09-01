@@ -7,35 +7,40 @@ export function processHtmlWithClickableParagraphs(
 
   // Process multiple types of elements that can be clicked for analysis
   const clickableSelectors = [
-    "p",           // paragraphs
-    "ul",          // unordered lists
-    "ol",          // ordered lists
-    "blockquote",  // quotes
-    "li",          // list items (individual)
-    "h1", "h2", "h3", "h4", "h5", "h6" // headers
+    "p", // paragraphs
+    "ul", // unordered lists
+    "ol", // ordered lists
+    "blockquote", // quotes
+    "li", // list items (individual)
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6", // headers
   ];
 
-  clickableSelectors.forEach(selector => {
+  clickableSelectors.forEach((selector) => {
     const elements = doc.querySelectorAll(selector);
-    
+
     elements.forEach((element) => {
       const text = element.textContent?.trim();
       if (!text || text.length < 10) return; // Skip very short content
-      
+
       // Skip if element contains other clickable elements (avoid nested clicking)
-      const hasNestedClickable = element.querySelector('.clickable-paragraph');
+      const hasNestedClickable = element.querySelector(".clickable-paragraph");
       if (hasNestedClickable) return;
 
       // Add click attributes and styling to the element
       const isSelected = selectedParagraph === text;
-      const existingClass = element.className || '';
-      
+      const existingClass = element.className || "";
+
       element.className = `${existingClass} clickable-paragraph ${
         isSelected
           ? "bg-blue-200 text-blue-900"
           : "hover:bg-blue-50 cursor-pointer"
       } transition-colors rounded`.trim();
-      
+
       element.setAttribute("data-sentence", text);
       element.setAttribute("tabindex", "0"); // Make it keyboard accessible
     });
