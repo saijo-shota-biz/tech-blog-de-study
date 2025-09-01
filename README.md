@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tech Blog Study - 英語×技術学習
 
-## Getting Started
+英語の技術記事を使った日本語学習プラットフォームです。Dev.toから記事を取得し、AI分析による翻訳・語彙解説・音声読み上げ機能を提供します。
 
-First, run the development server:
+## 主な機能
+
+- 📚 **技術記事の取得**: Dev.to APIから最新の技術記事を自動取得
+- 🤖 **AI翻訳・解説**: OpenAI APIによる自然な日本語翻訳と語彙解説
+- 🔊 **音声読み上げ**: 英語発音学習のためのText-to-Speech機能
+- 📊 **学習進捗管理**: Firebase連携による読書進捗とボキャブラリー管理
+
+## 技術スタック
+
+- **Frontend**: Next.js 15 + React 19 + TypeScript
+- **Styling**: Tailwind CSS v4
+- **Backend**: Next.js API Routes
+- **Database**: Firebase (Firestore)
+- **AI**: OpenAI API
+- **External API**: Dev.to API
+- **Dev Tools**: Biome (Linter/Formatter) + Turbopack
+
+## 開発環境のセットアップ
+
+### 1. 環境変数の設定
+
+`.env.local` ファイルを作成し、以下の環境変数を設定してください：
+
+```bash
+# Firebase
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-your_measurement_id
+
+# OpenAI
+OPENAI_API_KEY=your_openai_api_key
+```
+
+### 2. 依存関係のインストール
+
+```bash
+npm install
+```
+
+### 3. 開発サーバーの起動
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+[http://localhost:3000](http://localhost:3000) でアプリケーションにアクセスできます。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 利用可能なコマンド
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# 開発
+npm run dev      # 開発サーバー起動（Turbopack使用）
+npm run build    # プロダクションビルド
+npm run start    # プロダクションサーバー起動
 
-## Learn More
+# コード品質
+npm run lint     # Biomeでコード品質チェック
+npm run format   # Biomeでコード自動整形
+```
 
-To learn more about Next.js, take a look at the following resources:
+## プロジェクト構成
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+├── app/                 # Next.js App Router
+│   ├── api/            # API Routes
+│   │   ├── articles/   # 記事取得API
+│   │   ├── analyze/    # AI分析API
+│   │   └── tts/        # 音声生成API
+│   ├── article/        # 記事詳細ページ
+│   └── page.tsx        # ホームページ
+├── lib/                # Firebase設定
+├── types/              # TypeScript型定義
+└── utils/              # ユーティリティ関数
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## API エンドポイント
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `GET /api/articles` - Dev.toから記事一覧を取得
+- `GET /api/articles/[id]` - 特定記事の詳細を取得
+- `POST /api/analyze` - テキストのAI分析（翻訳・語彙解説）
+- `POST /api/tts` - テキストの音声生成

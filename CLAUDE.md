@@ -15,12 +15,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture
 
-This is a Next.js 15 application using:
+This is a **Tech Blog Study** application - a Japanese language learning platform focused on English technical articles. It's built with Next.js 15 and integrates with external APIs and Firebase.
+
+### Core Technologies
+- **Next.js 15** with App Router architecture
 - **React 19** with TypeScript
-- **App Router** architecture (files in `src/app/`)
 - **Tailwind CSS v4** for styling
 - **Biome** for linting and formatting (replaces ESLint/Prettier)
 - **Turbopack** for faster development builds
+- **Firebase** for authentication and data storage
+- **OpenAI API** for content analysis and translation
+
+### Application Structure
+- `src/app/` - Next.js App Router pages and API routes
+- `src/types/` - TypeScript type definitions for articles, analysis results, and API responses
+- `src/lib/` - Firebase configuration and shared utilities
+- `src/utils/` - Utility functions (sentence splitting, etc.)
+
+### Key Features
+- **Article Aggregation**: Fetches articles from Dev.to API and transforms them into unified format
+- **Content Analysis**: Uses OpenAI API to provide Japanese translations, vocabulary explanations, and reading assistance
+- **Text-to-Speech**: Converts English text to speech for pronunciation learning
+- **Progress Tracking**: User reading progress and vocabulary learning via Firebase
+
+### Data Flow
+1. `/api/articles` - Fetches and transforms articles from Dev.to API
+2. `/api/articles/[id]` - Retrieves individual article content
+3. `/api/analyze` - Analyzes text paragraphs with OpenAI for learning assistance
+4. `/api/tts` - Generates speech audio from text
 
 ### Key Conventions
 - Path alias `@/*` maps to `./src/*`
@@ -28,3 +50,4 @@ This is a Next.js 15 application using:
 - Biome configured with Next.js and React specific rules
 - 2-space indentation
 - Font optimization using Geist font family
+- Image optimization configured for Dev.to CDN domains

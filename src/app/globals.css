@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "highlight.js/styles/github-dark.css";
 
 :root {
   --background: #ffffff;
@@ -16,4 +17,175 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Article Content Styles */
+.article-content {
+  @apply leading-relaxed;
+}
+
+/* Headers */
+.article-content h1 {
+  @apply text-3xl font-bold text-gray-900 mt-8 mb-4 border-b border-gray-200 pb-2;
+}
+
+.article-content h2 {
+  @apply text-2xl font-semibold text-gray-800 mt-6 mb-3 border-b border-gray-100 pb-1;
+}
+
+.article-content h3 {
+  @apply text-xl font-medium text-gray-700 mt-5 mb-2;
+}
+
+.article-content h4 {
+  @apply text-lg font-medium text-gray-700 mt-4 mb-2;
+}
+
+/* Paragraphs */
+.article-content p {
+  @apply mb-4 text-gray-700 leading-7;
+}
+
+/* Lists */
+.article-content ul {
+  @apply mb-4 pl-6 space-y-2;
+}
+
+.article-content ol {
+  @apply mb-4 pl-6 space-y-2;
+}
+
+.article-content li {
+  @apply text-gray-700 leading-6;
+}
+
+.article-content ul li {
+  @apply list-disc;
+}
+
+.article-content ol li {
+  @apply list-decimal;
+}
+
+/* Nested lists */
+.article-content ul ul,
+.article-content ol ul {
+  @apply mt-2 mb-0;
+}
+
+/* Code blocks and inline code */
+.article-content code {
+  @apply bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-sm font-mono;
+}
+
+.article-content pre {
+  @apply bg-gray-900 text-gray-100 rounded-lg p-4 mb-4 overflow-x-auto;
+}
+
+.article-content pre code {
+  @apply bg-transparent text-inherit p-0;
+}
+
+/* Highlight.js code blocks */
+.article-content .highlight {
+  @apply mb-4 rounded-lg overflow-hidden;
+}
+
+.article-content .highlight pre {
+  @apply m-0 bg-gray-900;
+}
+
+/* Hide highlight.js action panels */
+.article-content .highlight__panel,
+.article-content .js-actions-panel {
+  @apply hidden;
+}
+
+/* Blockquotes */
+.article-content blockquote {
+  @apply border-l-4 border-blue-500 pl-4 py-2 my-4 bg-blue-50 text-gray-700 italic;
+}
+
+.article-content blockquote p {
+  @apply mb-2 last:mb-0;
+}
+
+/* Links */
+.article-content a {
+  @apply text-blue-600 hover:text-blue-800 underline transition-colors;
+}
+
+/* Table of Contents */
+.article-content .toc,
+.article-content [href="#table-of-contents"] {
+  @apply text-lg font-semibold text-gray-800 mb-3 block;
+}
+
+/* Horizontal rules */
+.article-content hr {
+  @apply my-8 border-t border-gray-200;
+}
+
+/* Images */
+.article-content img {
+  @apply max-w-full h-auto rounded-lg my-4;
+}
+
+/* Tables */
+.article-content table {
+  @apply w-full border-collapse border border-gray-300 my-4;
+}
+
+.article-content th,
+.article-content td {
+  @apply border border-gray-300 px-4 py-2 text-left;
+}
+
+.article-content th {
+  @apply bg-gray-50 font-semibold;
+}
+
+/* Strong and emphasis */
+.article-content strong {
+  @apply font-semibold text-gray-900;
+}
+
+.article-content em {
+  @apply italic;
+}
+
+/* Special styling for clickable elements */
+.article-content .clickable-paragraph {
+  @apply transition-colors duration-200 cursor-pointer rounded;
+}
+
+.article-content .clickable-paragraph:hover {
+  @apply bg-blue-50;
+}
+
+.article-content .clickable-paragraph:focus {
+  @apply outline-none ring-2 ring-blue-300/50;
+}
+
+/* Specific styling for different clickable elements */
+.article-content ul.clickable-paragraph,
+.article-content ol.clickable-paragraph {
+  @apply border-l-2 border-transparent hover:border-blue-300 pl-2 ml-2;
+}
+
+.article-content blockquote.clickable-paragraph {
+  @apply hover:bg-blue-100;
+}
+
+.article-content li.clickable-paragraph {
+  @apply hover:bg-blue-50 px-2 py-1 mx-1;
+}
+
+.article-content h1.clickable-paragraph,
+.article-content h2.clickable-paragraph,
+.article-content h3.clickable-paragraph,
+.article-content h4.clickable-paragraph,
+.article-content h5.clickable-paragraph,
+.article-content h6.clickable-paragraph {
+  @apply hover:bg-blue-50 px-2 py-1;
 }

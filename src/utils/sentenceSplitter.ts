@@ -5,20 +5,40 @@ export function processHtmlWithClickableParagraphs(
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
 
-  // Process all paragraph elements
-  const paragraphs = doc.querySelectorAll("p");
+  // Process multiple types of elements that can be clicked for analysis
+  const clickableSelectors = [
+    "p",           // paragraphs
+    "ul",          // unordered lists
+    "ol",          // ordered lists
+    "blockquote",  // quotes
+    "li",          // list items (individual)
+    "h1", "h2", "h3", "h4", "h5", "h6" // headers
+  ];
 
-  paragraphs.forEach((p) => {
-    const text = p.textContent?.trim();
-    if (!text) return;
+  clickableSelectors.forEach(selector => {
+    const elements = doc.querySelectorAll(selector);
+    
+    elements.forEach((element) => {
+      const text = element.textContent?.trim();
+      if (!text || text.length < 10) return; // Skip very short content
+      
+      // Skip if element contains other clickable elements (avoid nested clicking)
+      const hasNestedClickable = element.querySelector('.clickable-paragraph');
+      if (hasNestedClickable) return;
 
-    // Add click attributes and styling to the paragraph
-    p.className = `clickable-paragraph ${
-      selectedParagraph === text
-        ? "bg-blue-200 text-blue-900"
-        : "hover:bg-blue-50 cursor-pointer"
-    } transition-colors p-2 rounded mb-2`;
-    p.setAttribute("data-sentence", text);
+      // Add click attributes and styling to the element
+      const isSelected = selectedParagraph === text;
+      const existingClass = element.className || '';
+      
+      element.className = `${existingClass} clickable-paragraph ${
+        isSelected
+          ? "bg-blue-200 text-blue-900"
+          : "hover:bg-blue-50 cursor-pointer"
+      } transition-colors rounded`.trim();
+      
+      element.setAttribute("data-sentence", text);
+      element.setAttribute("tabindex", "0"); // Make it keyboard accessible
+    });
   });
 
   return doc.body ? doc.body.innerHTML : "";

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { use, useCallback, useEffect, useState } from "react";
+import hljs from "highlight.js";
 import type { AnalysisResult, Article } from "@/types";
 import { processHtmlWithClickableParagraphs } from "@/utils/sentenceSplitter";
 
@@ -68,6 +69,18 @@ export default function ArticlePage({ params }: ArticlePageProps) {
       setProcessedHtml(htmlContent);
     }
   }, [selectedParagraph, originalContent]);
+
+  // Initialize highlight.js when processedHtml changes
+  useEffect(() => {
+    if (processedHtml) {
+      // Use setTimeout to ensure DOM is updated
+      const timer = setTimeout(() => {
+        hljs.highlightAll();
+      }, 0);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [processedHtml]);
 
   const handleSentenceClick = async (sentence: string) => {
     setSelectedParagraph(sentence);
@@ -256,7 +269,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
 
         {/* Article Content with Clickable Sentences */}
         <article
-          className="prose prose-sm max-w-none break-words overflow-wrap-anywhere"
+          className="article-content max-w-none break-words overflow-wrap-anywhere"
           // biome-ignore lint/security/noDangerouslySetInnerHtml: Content is from trusted dev.to API and processed
           dangerouslySetInnerHTML={{ __html: processedHtml }}
           onClick={(e) => {
